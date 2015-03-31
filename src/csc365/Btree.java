@@ -226,7 +226,7 @@ public class Btree<Key extends Comparable<String>, Value> {
 
     
     public void readFile(Cache cacheMap, Btree bt, WebParser parser) {
-        this.cacheMap = cacheMap;
+        
         String key;
         int keyLength = 30;
         int offset = 0; //offset of CURRENT file pointer (initialPos)
@@ -255,18 +255,20 @@ public class Btree<Key extends Comparable<String>, Value> {
                     for (int i = 0; i < hTemp.size(); i++) {
                         if (hTemp.get(i) != null) {
                             String website = hTemp.getWebsite(i);
+                            int frequency = hTemp.getFrequency(i);
+                            
                             if((cacheMap.get(website)) != -1) {
                                 
                                 if(cacheMap.isExpired(website)){
-                                    bt.put(key.toLowerCase(), hTemp.getWebsite(i), hTemp.getFrequency(i));
+                                    bt.put(key.toLowerCase(), website, frequency);
                                 }
                                 else{
-                                    bt.put(key.toLowerCase(), hTemp.getWebsite(i), hTemp.getFrequency(i));
+                                    bt.put(key.toLowerCase(), website, frequency);
                                     System.out.println("stayed the same");
                                 }
                                 
                             } else { 
-                                bt.put(key.toLowerCase(), hTemp.getWebsite(i), hTemp.getFrequency(i));
+                                bt.put(key.toLowerCase(), website, frequency);
                             }
                         }
                     }

@@ -32,18 +32,15 @@ public class Cache extends HashMap {
 
     static class Entry {
 
-        private int lastAccessed;
-
+        private long lastAccessed;
         private final long expiration;
 
         public Entry(long expire) {
-
-            this.lastAccessed = (int) System.currentTimeMillis();
+            this.lastAccessed = System.currentTimeMillis();
             this.expiration = expire;
-
         }
 
-        public Entry(int lastAccessed, long expire) {
+        public Entry(long lastAccessed, long expire) {
             this.lastAccessed = lastAccessed;
             this.expiration = expire;
         }
@@ -74,7 +71,8 @@ public class Cache extends HashMap {
                     while (true) {
                         for (String key : cacheMap.keySet()) {
                             if (cacheMap.get(key).isExpired()) {
-                                
+                                //Website is expired
+                                //Update the btree with current information
                             }
                         }
                         Thread.sleep(TimeUnit.MINUTES.toMillis(1));
@@ -115,7 +113,7 @@ public class Cache extends HashMap {
             while (sc.hasNextLine()) {
                 webPage = sc.next();
                 lastAccessed = Long.parseLong(sc.next());
-                cacheMap.put(webPage, new Entry((int) lastAccessed, 100000));
+                cacheMap.put(webPage, new Entry(lastAccessed, 100000));
             }
         } catch (FileNotFoundException ex) {
             System.out.println("file not found.");
