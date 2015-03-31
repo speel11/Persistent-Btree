@@ -15,7 +15,8 @@ import java.util.logging.Logger;
  *
  * @author speel_000
  */
-//Custom Hash Table class for maintaining word frequencies.
+
+
 public class HashTable implements Serializable{
 
     private final HashEntry[] websites;
@@ -126,11 +127,9 @@ public class HashTable implements Serializable{
         String s = "";
         for(HashEntry entry: websites){
             if(entry != null){
-                
-                //s += "WebPage: " + entry.getKey() + "---" + entry.getFreq() + "\n";
-                //System.out.println("WebPage: ");
-                //System.out.println(entry.getKey());
-        
+                s += "WebPage: " + entry.getKey() + "---" + entry.getFreq() + "\n";
+                System.out.println("WebPage: ");
+                System.out.println(entry.getKey());
             }
         }
         return s;

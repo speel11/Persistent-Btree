@@ -146,7 +146,7 @@ public class WebParser {
         String relatedName;
         String topsite = "";
         HashTable h;
-        int n = 0;
+        int n;
         HashTable table = new HashTable();
         
         try {
@@ -155,9 +155,8 @@ public class WebParser {
             for (Element p : paragraphs) {
                 String[] result = p.text().split("\\W");
                 for (String word : result) {
+                    n = 0;
                     if (word.length() > 4) {
-                        n = 0;
-                        //System.out.println(word);
                         h = bt.search(word.toLowerCase());
 
                         if (h != null) {
@@ -221,8 +220,7 @@ public class WebParser {
     }
 
     public void reparseWebsite(String website, Btree<String, HashTable> temp) {
-//        cacheMap.remove(website);
-//        cacheMap.put(website, 100000);
+
         try {
 
             Document doc = (Document) Jsoup.connect(website).get();

@@ -18,6 +18,9 @@ import java.util.logging.Logger;
  *
  * @author speel_000
  */
+
+//Cache currently is not very well supported.
+
 public class Cache extends HashMap {
 
     private static ConcurrentHashMap<String, Entry> cacheMap;

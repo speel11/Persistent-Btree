@@ -226,12 +226,11 @@ public class Btree<Key extends Comparable<String>, Value> {
 
     
     public void readFile(Cache cacheMap, Btree bt, WebParser parser) {
-        
+        this.cacheMap = cacheMap;
         String key;
         int keyLength = 30;
         int offset = 0; //offset of CURRENT file pointer (initialPos)
         byte[] kByte;
-        int count = 0;
         try {
 
             position = 0;
