@@ -103,7 +103,7 @@ public class WebParser {
         } else {
             aFile = new File("cache.txt");
             cacheMap.read(aFile);
-            bt = bt.readFile(cacheMap, this);
+            bt.readFile(cacheMap, bt, this);
 
         }
     }

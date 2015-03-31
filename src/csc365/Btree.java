@@ -15,8 +15,6 @@ import java.io.ObjectOutputStream;
 import java.io.RandomAccessFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jsoup.Connection;
-import org.jsoup.Jsoup;
 
 /**
  *
@@ -227,8 +225,8 @@ public class Btree<Key extends Comparable<String>, Value> {
     }
 
     
-    public Btree<String, HashTable> readFile(Cache cacheMap, WebParser parser) {
-        Btree<String, HashTable> temp = new Btree<>();
+    public void readFile(Cache cacheMap, Btree bt, WebParser parser) {
+        
         String key;
         int keyLength = 30;
         int offset = 0; //offset of CURRENT file pointer (initialPos)
@@ -261,29 +259,25 @@ public class Btree<Key extends Comparable<String>, Value> {
                             if((cacheMap.get(website)) != -1) {
                                 
                                 if(cacheMap.isExpired(website)){
-                                    //System.out.println("reparsing...");
-                                    //parser.reparseWebsite(website, temp);
-                                    temp.put(key.toLowerCase(), hTemp.getWebsite(i), hTemp.getFrequency(i));
+                                    bt.put(key.toLowerCase(), hTemp.getWebsite(i), hTemp.getFrequency(i));
                                 }
                                 else{
-                                    temp.put(key.toLowerCase(), hTemp.getWebsite(i), hTemp.getFrequency(i));
+                                    bt.put(key.toLowerCase(), hTemp.getWebsite(i), hTemp.getFrequency(i));
                                     System.out.println("stayed the same");
                                 }
                                 
                             } else { 
-                                temp.put(key.toLowerCase(), hTemp.getWebsite(i), hTemp.getFrequency(i));
+                                bt.put(key.toLowerCase(), hTemp.getWebsite(i), hTemp.getFrequency(i));
                             }
-                            //System.out.println(count++);
                         }
                     }
-                    //System.out.println();
                 }
             }
         } catch (IOException ex) {
             Logger.getLogger(Btree.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        return temp;
+        
     }
 
    
