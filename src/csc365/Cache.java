@@ -41,7 +41,7 @@ public class Cache extends HashMap {
             URL url = new URL(website);
             URLConnection connection = url.openConnection();
             String lastmod = connection.getHeaderField("Last-Modified");
-            
+
             if (!cacheMap.get(website).equalsIgnoreCase(lastmod)) //site has been updated
             {
 //                System.out.println(website);
@@ -100,7 +100,7 @@ public class Cache extends HashMap {
             }
         }).start();
     }
-    
+
     public static void put(String key, String lastMod) {
         cacheMap.put(key, lastMod);
     }
@@ -113,12 +113,25 @@ public class Cache extends HashMap {
     public void read(File file) {
         try {
             Scanner sc = new Scanner(file);
-            String webPage;
-            String lastmod;
+            String webPage = "";
+            String lastmod = "";
+            int lineSwitch = 0;
+            boolean write;
             while (sc.hasNextLine()) {
-                webPage = sc.nextLine();
-                lastmod = sc.nextLine();
-                cacheMap.put(webPage, lastmod);
+                if (lineSwitch == 0) {
+                    webPage = sc.nextLine();
+                    lineSwitch = 1;
+                    write = false;
+                } else {
+                    lastmod = sc.nextLine();
+                    lineSwitch = 0;
+                    write = true;
+                }
+                
+
+                if (write) 
+                    cacheMap.put(webPage, lastmod);
+                
             }
         } catch (FileNotFoundException ex) {
             System.out.println("file not found.");
