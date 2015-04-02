@@ -31,7 +31,7 @@ public class Cache extends HashMap {
     private static boolean ready;
 
     public Cache() {
-        cacheMap = new ConcurrentHashMap<>();
+        cacheMap = new ConcurrentHashMap<>(50000);
         ready = false;
     }
 
@@ -41,8 +41,8 @@ public class Cache extends HashMap {
         try {
             URL url = new URL(website);
             URLConnection connection = url.openConnection();
-            String lastmod = connection.getHeaderField("Last-Modified").replaceAll(" ", "");
-            
+            String lastmod = "\"" + connection.getHeaderField("Last-Modified").replaceAll(" ", "") + "\"";
+
             if (!cacheMap.get(website).equalsIgnoreCase(lastmod)) //site has been updated
             {
 //                System.out.println(website);
@@ -66,7 +66,7 @@ public class Cache extends HashMap {
             //update cacheMap with new site info.
             cacheMap.remove(website);
             cacheMap.put(website, lastmod);
-
+            
             parser.reparseWebsite(website, tree);
 
         } catch (IOException ex) {
@@ -85,9 +85,10 @@ public class Cache extends HashMap {
                             //System.out.println("Thread 2 ready.");
                             for (String key : cacheMap.keySet()) {
                                 //System.out.println(key);
-                                if (key.startsWith("http") && websiteRequiresUpdate(key)) {
+                                if (websiteRequiresUpdate(key)) {
                                     //Website is expired
                                     update(key);
+                                    System.out.println(key + " requires updating");
                                 }
                             }
                         }
