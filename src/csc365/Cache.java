@@ -7,7 +7,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Scanner;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -43,10 +42,6 @@ public class Cache extends HashMap {
             URLConnection connection = url.openConnection();
             String lastmod = connection.getHeaderField("Last-Modified").replaceAll(" ", "");
             
-            System.out.println(website);
-            System.out.println(cacheMap.get(website));
-            System.out.println(lastmod);
-           
             if (!cacheMap.get(website).equalsIgnoreCase(lastmod)) //site has been updated
             {
                 needsUpdate = true;
@@ -88,9 +83,8 @@ public class Cache extends HashMap {
                             for (String key : cacheMap.keySet()) {
                                 //System.out.println(key);
                                 if (websiteRequiresUpdate(key)) {
-                                    //Website is expired
+                                    //Website is expired, update
                                     update(key);
-                                    System.out.println(key + " requires updating");
                                 }
                             }
                         }
