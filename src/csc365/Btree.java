@@ -257,19 +257,7 @@ public class Btree<Key extends Comparable<String>, Value> {
                             String website = hTemp.getWebsite(i);
                             int frequency = hTemp.getFrequency(i);
                             
-                            if((cacheMap.get(website)) != -1) {
-                                
-                                if(cacheMap.isExpired(website)){
-                                    bt.put(key.toLowerCase(), website, frequency);
-                                }
-                                else{
-                                    bt.put(key.toLowerCase(), website, frequency);
-                                    System.out.println("stayed the same");
-                                }
-                                
-                            } else { 
-                                bt.put(key.toLowerCase(), website, frequency);
-                            }
+                            bt.put(key.toLowerCase(), website, frequency);
                         }
                     }
                 }

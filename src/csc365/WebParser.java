@@ -12,6 +12,8 @@ import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +29,6 @@ import org.jsoup.select.Elements;
  */
 public class WebParser {
 
-    
     private ArrayList<HashEntry[]> strings;
     private ArrayList<String> websites = new ArrayList<>();
     private ArrayList<String> relatedSites;
@@ -41,7 +42,7 @@ public class WebParser {
     int index = -1;
 
     public WebParser() {
-       
+
         strings = new ArrayList<>();
         relatedSites = new ArrayList<>();
         cacheMap = new Cache();
@@ -64,11 +65,18 @@ public class WebParser {
 
             for (String webPage : names) {
 
-               
-                cacheMap.put(webPage, 100000);
+                URLConnection connection;
+                try {
+                    URL url = new URL(webPage);
+                    connection = url.openConnection();
+                    String lastmod = connection.getHeaderField("Last-Modified");
+                    Cache.put(webPage, lastmod);
+                    writer.println(webPage);
+                    writer.println(lastmod);
+                } catch (IOException ex) {
+                    Logger.getLogger(WebParser.class.getName()).log(Level.SEVERE, null, ex);
+                }
 
-               
-                writer.println(webPage + " " + System.currentTimeMillis());
                 try {
                     Document doc = (Document) Jsoup.connect(webPage).get();
                     Elements paragraphs = doc.select("p");
@@ -103,8 +111,10 @@ public class WebParser {
         } else {
             aFile = new File("cache.txt");
             cacheMap.read(aFile);
+            cacheMap.setParser(this);
+            cacheMap.setTree(bt);
+            cacheMap.setReadyFlag(true);
             bt.readFile(cacheMap, bt, this);
-
         }
     }
 
@@ -112,8 +122,17 @@ public class WebParser {
         int c = 0;
         System.out.println(relatedSites.size());
         for (String webPage : relatedSites) {
-            cacheMap.put(webPage, 100000);
-            writer.println(webPage + " " + System.currentTimeMillis());
+            URLConnection connection;
+            try {
+                URL url = new URL(webPage);
+                connection = url.openConnection();
+                String lastmod = connection.getHeaderField("Last-Modified");
+                Cache.put(webPage, lastmod);
+                writer.println(webPage);
+                writer.println(lastmod);
+            } catch (IOException ex) {
+                Logger.getLogger(WebParser.class.getName()).log(Level.SEVERE, null, ex);
+            }
 
             System.out.println((c++) + "--" + webPage);
             try {
@@ -137,7 +156,9 @@ public class WebParser {
             }
 
         }
-
+        cacheMap.setParser(this);
+        cacheMap.setTree(bt);
+        cacheMap.setReadyFlag(true);
         bt.write();
         writer.close();
     }
@@ -148,7 +169,7 @@ public class WebParser {
         HashTable h;
         int n;
         HashTable table = new HashTable();
-        
+
         try {
             Document doc = (Document) Jsoup.connect(name).get();
             Elements paragraphs = doc.select("p");
@@ -171,12 +192,13 @@ public class WebParser {
                                     }
                                 }
                             }
-                            
-                            if (table.containsWebsite(topsite)) 
+
+                            if (table.containsWebsite(topsite)) {
                                 table.increment(topsite);
-                            else
+                            } else {
                                 table.put(topsite, n);
-                            
+                            }
+
                         }
                     }
                 }
@@ -231,8 +253,20 @@ public class WebParser {
 
                 for (String word : result) {
                     if (word.length() > 4) {
+                        HashTable h;
+                        if ((h = temp.search(word)) != null) {
+
+                            for (int i = 0; i < h.size(); i++) {
+                                String tmp;
+                                if ((tmp = h.getWebsite(i)) != null && website.equalsIgnoreCase(tmp)) {
+                                    h.remove(i);
+                                }
+
+                            }
+                        }
+
                         temp.put(word.toLowerCase(), website, 1);
-                        
+
                     }
                 }
             }

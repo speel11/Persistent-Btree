@@ -56,12 +56,27 @@ public class HashTable implements Serializable{
     }
     
     public String getWebsite(int index){
-        return websites[index].getKey();
+        
+        if(websites[index] != null)
+            return websites[index].getKey();
+        return null;
     }
     
     public int getFrequency(int index){
         return websites[index].getFreq();
     }
+    
+    public void remove(int index){
+        websites[index] = null;
+        
+        while(websites[index++] != null){
+            String website = websites[index].getKey();
+            int freq = websites[index].getFreq();
+            
+            websites[index] = null;
+            put(website, freq);
+        }
+     }
 
     public void increment(String website) {
         int hash = hash(website);

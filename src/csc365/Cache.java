@@ -2,6 +2,9 @@ package csc365;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,49 +21,56 @@ import java.util.logging.Logger;
  *
  * @author speel_000
  */
-
 //Cache currently is not very well supported.
-
 public class Cache extends HashMap {
 
-    private static ConcurrentHashMap<String, Entry> cacheMap;
+    private static ConcurrentHashMap<String, String> cacheMap;
+    private static WebParser parser;
+    private static Btree tree;
+    private static boolean ready;
 
     public Cache() {
         cacheMap = new ConcurrentHashMap<>();
-
+        ready = false;
     }
 
-    static class Entry {
+    public static boolean websiteRequiresUpdate(String website) {
+        boolean needsUpdate = false;
 
-        private long lastAccessed;
-        private final long expiration;
-
-        public Entry(long expire) {
-            this.lastAccessed = System.currentTimeMillis();
-            this.expiration = expire;
+        try {
+            URL url = new URL(website);
+            URLConnection connection = url.openConnection();
+            String lastmod = connection.getHeaderField("Last-Modified");
+            
+            if (!cacheMap.get(website).equalsIgnoreCase(lastmod)) //site has been updated
+            {
+//                System.out.println(website);
+//                System.out.println(cacheMap.get(website));
+//                System.out.println(lastmod);
+                return true;
+            }
+        } catch (IOException ex) {
+            System.out.println("Website could not be loaded: " + website);
         }
 
-        public Entry(long lastAccessed, long expire) {
-            this.lastAccessed = lastAccessed;
-            this.expiration = expire;
-        }
+        return needsUpdate;
+    }
 
-        public long getValue() {
-            return this.expiration;
-        }
+    public static void update(String website) {
+        try {
+            URL url = new URL(website);
+            URLConnection connection = url.openConnection();
+            String lastmod = connection.getHeaderField("Last-Modified");
 
-        public long getLastAccessed() {
-            return this.lastAccessed;
-        }
+            //update cacheMap with new site info.
+            cacheMap.remove(website);
+            cacheMap.put(website, lastmod);
 
-        public boolean isExpired() {
-            return (lastAccessed + expiration) < System.currentTimeMillis();
-        }
+            parser.reparseWebsite(website, tree);
 
-        public void updateUseTime() {
-            this.lastAccessed = (int) System.currentTimeMillis();
+        } catch (IOException ex) {
+            System.out.println("Website could not be loaded: " + website);
         }
-
     }
 
     static {
@@ -69,13 +79,20 @@ public class Cache extends HashMap {
             public void run() {
                 try {
                     while (true) {
-                        for (String key : cacheMap.keySet()) {
-                            if (cacheMap.get(key).isExpired()) {
-                                //Website is expired
-                                //Update the btree with current information
+                        //System.out.println("thread 2");
+                        if (ready) {
+                            //System.out.println("Thread 2 ready.");
+                            for (String key : cacheMap.keySet()) {
+                                if (key.startsWith("http") && websiteRequiresUpdate(key)) {
+                                    //System.out.println(key + " requires updating...");
+                                    //Website is expired
+                                    update(key);
+                                    //System.out.println(key + " updated.");
+                                }
                             }
                         }
                         Thread.sleep(TimeUnit.MINUTES.toMillis(1));
+
                     }
                 } catch (InterruptedException ex) {
                     Logger.getLogger(Cache.class.getName()).log(Level.SEVERE, null, ex);
@@ -83,41 +100,41 @@ public class Cache extends HashMap {
             }
         }).start();
     }
-
-    public static void put(String key, long expiration) {
-        cacheMap.put(key, new Entry(expiration));
-    }
     
-    public boolean isExpired(String key){
-        Entry entry = cacheMap.get(key);
-        
-        return entry.isExpired();
+    public static void put(String key, String lastMod) {
+        cacheMap.put(key, lastMod);
     }
 
-    public static int get(String key) {
-        Entry entry = cacheMap.get(key);
-        
-        if (entry != null) {
-            entry.updateUseTime();
-            return (int) entry.getLastAccessed();
-        } else {
-            return -1;
-        }
+    public static String lastmod(String key) {
+        String s = cacheMap.get(key);
+        return s;
     }
 
     public void read(File file) {
         try {
             Scanner sc = new Scanner(file);
             String webPage;
-            long lastAccessed;
+            String lastmod;
             while (sc.hasNextLine()) {
-                webPage = sc.next();
-                lastAccessed = Long.parseLong(sc.next());
-                cacheMap.put(webPage, new Entry(lastAccessed, 100000));
+                webPage = sc.nextLine();
+                lastmod = sc.nextLine();
+                cacheMap.put(webPage, lastmod);
             }
         } catch (FileNotFoundException ex) {
             System.out.println("file not found.");
         }
+    }
+
+    public void setReadyFlag(boolean bool) {
+        Cache.ready = bool;
+    }
+
+    public void setParser(WebParser parser) {
+        Cache.parser = parser;
+    }
+
+    public void setTree(Btree tree) {
+        Cache.tree = tree;
     }
 
 }
