@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -40,8 +41,8 @@ public class Cache extends HashMap {
         try {
             URL url = new URL(website);
             URLConnection connection = url.openConnection();
-            String lastmod = connection.getHeaderField("Last-Modified");
-
+            String lastmod = connection.getHeaderField("Last-Modified").replaceAll(" ", "");
+            
             if (!cacheMap.get(website).equalsIgnoreCase(lastmod)) //site has been updated
             {
 //                System.out.println(website);
@@ -60,7 +61,7 @@ public class Cache extends HashMap {
         try {
             URL url = new URL(website);
             URLConnection connection = url.openConnection();
-            String lastmod = connection.getHeaderField("Last-Modified");
+            String lastmod = connection.getHeaderField("Last-Modified").replaceAll(" ", "");
 
             //update cacheMap with new site info.
             cacheMap.remove(website);
@@ -83,11 +84,10 @@ public class Cache extends HashMap {
                         if (ready) {
                             //System.out.println("Thread 2 ready.");
                             for (String key : cacheMap.keySet()) {
+                                //System.out.println(key);
                                 if (key.startsWith("http") && websiteRequiresUpdate(key)) {
-                                    //System.out.println(key + " requires updating...");
                                     //Website is expired
                                     update(key);
-                                    //System.out.println(key + " updated.");
                                 }
                             }
                         }
@@ -102,7 +102,8 @@ public class Cache extends HashMap {
     }
 
     public static void put(String key, String lastMod) {
-        cacheMap.put(key, lastMod);
+        
+        cacheMap.put(key, lastMod.replaceAll(" ", ""));
     }
 
     public static String lastmod(String key) {
@@ -113,26 +114,16 @@ public class Cache extends HashMap {
     public void read(File file) {
         try {
             Scanner sc = new Scanner(file);
-            String webPage = "";
-            String lastmod = "";
-            int lineSwitch = 0;
-            boolean write;
-            while (sc.hasNextLine()) {
-                if (lineSwitch == 0) {
-                    webPage = sc.nextLine();
-                    lineSwitch = 1;
-                    write = false;
-                } else {
-                    lastmod = sc.nextLine();
-                    lineSwitch = 0;
-                    write = true;
-                }
-                
+            String webPage;
+            String lastmod;
+            String regex = "\"[^\"]+\""; //obtain a string(any alphanumeric that isn't " one or more times) inside of quotes
 
-                if (write) 
-                    cacheMap.put(webPage, lastmod);
-                
+            while (sc.hasNextLine()) {
+                webPage = sc.next();
+                lastmod = sc.next(regex);
+                cacheMap.put(webPage, lastmod);
             }
+
         } catch (FileNotFoundException ex) {
             System.out.println("file not found.");
         }
