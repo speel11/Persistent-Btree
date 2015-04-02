@@ -69,7 +69,7 @@ public class WebParser {
                 try {
                     URL url = new URL(webPage);
                     connection = url.openConnection();
-                    String lastmod = connection.getHeaderField("Last-Modified").replaceAll(" ", "");
+                    String lastmod = "\"" + connection.getHeaderField("Last-Modified").replaceAll(" ", "") + "\"";
                     cacheMap.put(webPage, lastmod);
                     writer.println(webPage + " \"" + lastmod + "\"");
                 } catch (IOException ex) {
@@ -125,7 +125,7 @@ public class WebParser {
             try {
                 URL url = new URL(webPage);
                 connection = url.openConnection();
-                String lastmod = connection.getHeaderField("Last-Modified").replaceAll(" ", "");
+                String lastmod = "\"" + connection.getHeaderField("Last-Modified").replaceAll(" ", "") + "\"";
                 cacheMap.put(webPage, lastmod);
                 writer.println(webPage + " \"" + lastmod + "\"");
                 

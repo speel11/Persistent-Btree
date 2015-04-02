@@ -42,13 +42,15 @@ public class Cache extends HashMap {
             URL url = new URL(website);
             URLConnection connection = url.openConnection();
             String lastmod = "\"" + connection.getHeaderField("Last-Modified").replaceAll(" ", "") + "\"";
-
+            
+            System.out.println(website);
+            System.out.println(cacheMap.get(website));
+            System.out.println(lastmod);
+            
             if (!cacheMap.get(website).equalsIgnoreCase(lastmod)) //site has been updated
             {
-//                System.out.println(website);
-//                System.out.println(cacheMap.get(website));
-//                System.out.println(lastmod);
-                return true;
+                needsUpdate = true;
+                return needsUpdate;
             }
         } catch (IOException ex) {
             System.out.println("Website could not be loaded: " + website);
@@ -61,12 +63,12 @@ public class Cache extends HashMap {
         try {
             URL url = new URL(website);
             URLConnection connection = url.openConnection();
-            String lastmod = connection.getHeaderField("Last-Modified").replaceAll(" ", "");
+            String lastmod = "\"" + connection.getHeaderField("Last-Modified").replaceAll(" ", "") + "\"";
 
             //update cacheMap with new site info.
             cacheMap.remove(website);
             cacheMap.put(website, lastmod);
-            
+
             parser.reparseWebsite(website, tree);
 
         } catch (IOException ex) {
@@ -103,7 +105,7 @@ public class Cache extends HashMap {
     }
 
     public static void put(String key, String lastMod) {
-        
+
         cacheMap.put(key, lastMod.replaceAll(" ", ""));
     }
 
