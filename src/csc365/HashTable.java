@@ -20,7 +20,7 @@ import java.util.logging.Logger;
 public class HashTable implements Serializable{
 
     private final HashEntry[] websites;
-    private final int initialCapacity = 4000;
+    private final int initialCapacity = 500;
     
 
     public HashTable() {

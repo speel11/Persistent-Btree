@@ -31,7 +31,7 @@ public class Cache extends HashMap {
     private static boolean ready;
 
     public Cache() {
-        cacheMap = new ConcurrentHashMap<>(50000);
+        cacheMap = new ConcurrentHashMap<>(5000);
         ready = false;
     }
 
@@ -41,12 +41,12 @@ public class Cache extends HashMap {
         try {
             URL url = new URL(website);
             URLConnection connection = url.openConnection();
-            String lastmod = "\"" + connection.getHeaderField("Last-Modified").replaceAll(" ", "") + "\"";
+            String lastmod = connection.getHeaderField("Last-Modified").replaceAll(" ", "");
             
             System.out.println(website);
             System.out.println(cacheMap.get(website));
             System.out.println(lastmod);
-            
+           
             if (!cacheMap.get(website).equalsIgnoreCase(lastmod)) //site has been updated
             {
                 needsUpdate = true;
@@ -63,7 +63,7 @@ public class Cache extends HashMap {
         try {
             URL url = new URL(website);
             URLConnection connection = url.openConnection();
-            String lastmod = "\"" + connection.getHeaderField("Last-Modified").replaceAll(" ", "") + "\"";
+            String lastmod = connection.getHeaderField("Last-Modified").replaceAll(" ", "");
 
             //update cacheMap with new site info.
             cacheMap.remove(website);
@@ -123,7 +123,7 @@ public class Cache extends HashMap {
 
             while (sc.hasNextLine()) {
                 webPage = sc.next();
-                lastmod = sc.next(regex);
+                lastmod = sc.next(regex).replaceAll("\"", "");
                 cacheMap.put(webPage, lastmod);
             }
 
