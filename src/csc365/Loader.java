@@ -19,11 +19,11 @@ import java.util.ArrayList;
  * @author speel_000
  */
 public class Loader {
-    WebParser parser = new WebParser();
-    ArrayList<String> webNameList = new ArrayList<>();
-    RandomAccessFile aFile;
-    FileChannel inChannel;
-    MappedByteBuffer buf;
+    private final WebParser parser = new WebParser();
+    private final ArrayList<String> webNameList = new ArrayList<>();
+    private final RandomAccessFile aFile;
+    private final FileChannel inChannel;
+    private MappedByteBuffer buf;
 
     public Loader(String fileName) throws FileNotFoundException {
 

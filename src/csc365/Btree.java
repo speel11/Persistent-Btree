@@ -31,8 +31,6 @@ public class Btree<Key extends Comparable<String>, Value> {
     private int position = 0;
     private RandomAccessFile file;
     public boolean needToCreate;
-    private Cache cacheMap;
-
     //private ObjectOutputStream out;
     private static final class Node {
 
@@ -60,7 +58,6 @@ public class Btree<Key extends Comparable<String>, Value> {
     public Btree(RandomAccessFile file) {
 
         root = new Node(0);
-        cacheMap = new Cache();
         this.file = file;
 
         try {
